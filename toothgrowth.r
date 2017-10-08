@@ -8,6 +8,7 @@ head(tData)
 
 summary(tData)
 unique(tData$dose)
+uniqu(tData$supp)
 
 tapply(tData,tData$supp,mean(tData$len))
 
@@ -85,6 +86,38 @@ power.t.test(power = .90, delta = meanOJ-meanVC, sd = sqrt((sdOJ^2+sdVC^2)/2),
              alternative = "one.sided")
 
 ## For Power=0.90, n should be more than 71
+
+
+
+tDataDose12<-tData[tData$dose!=1.0,]
+
+t.test(len~dose,data=tDataDose12,paired=F,var.equal=T)
+
+
+meanD.5<-mean(tData[tData$dose==.5,]$len)
+meanD1<-mean(tData[tData$dose==1,]$len)
+meanD2<-mean(tData[tData$dose==2.0,]$len)
+
+sdD.5<-sd(tData[tData$dose==.5,]$len)
+sdD1<-sd(tData[tData$dose==1,]$len)
+sdD2<-sd(tData[tData$dose==2.0,]$len)
+
+
+power.t.test(n=20, delta = meanD2-meanD.5, sd = sqrt((sdD2^2+sdD.5^2)/2), 
+             sig.level = 0.05,
+             type = "two.sample",
+             alternative = "one.sided")
+
+power.t.test(n=20, delta = meanD2-meanD1, sd = sqrt((sdD2^2+sdD1^2)/2), 
+             sig.level = 0.05,
+             type = "two.sample",
+             alternative = "one.sided")
+
+power.t.test(n=20, delta = meanD1-meanD.5, sd = sqrt((sdD.5^2+sdD1^2)/2), 
+             sig.level = 0.05,
+             type = "two.sample",
+             alternative = "one.sided")
+
 
 power.t.test()
 

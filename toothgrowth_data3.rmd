@@ -1,0 +1,135 @@
+---
+title: "The response of supplements on Tooth Growth of Guinea Pigs"
+author: "Sayef Ishauqe"
+date: "October 09, 2017"
+---
+
+### Overview
+This papaer analyzes the Tooth Growth data available in R datasets to infer the 
+response of supplements on tooth growth from the sample. The analyis will 
+evaluate hypothesises across delivery methods (Orange Juice - OJ, 
+ascrobic acid - VC) and dose levels (0.5,1,2 mg/day). 
+
+### Data Processing & Analysis
+* Step 1: Load the data and examine the structure
+```{r, echo=FALSE}
+
+tData<-ToothGrowth
+# head(tData)
+levels(tData$supp)<-c("Orange Juice","Ascrobic Acid (Vitamin C)")
+tData$dose<-factor(tData$dose)
+# colnames(tData)<-c("Tooth.length", "supplement.Type","Dose.in.mg.per.day")
+summary(tData)
+```
+* Step 2: Plot a bar chart of average tooth growth for different supplements and 
+dose levels
+
+```{r, include=FALSE}
+library(dplyr)
+```
+
+```{r, echo=FALSE, fig.height=3.5}
+
+tDataGrouped<-group_by(tData,supp,dose)
+tDataSummary<-summarise_all(tDataGrouped,mean)
+library(ggplot2)
+g<-ggplot(data=tDataSummary,aes(y=len,x=factor(dose),fill=supp))
+g<-g+geom_col(position = "dodge")
+g<-g+geom_text(aes(label=len), nudge_y = 1,nudge_x=c(-.2,-.2,-.2,.2,.2,.2))
+# g<-g+coord_flip()
+g<-g+ scale_fill_discrete(name="supplement Type")
+g<-g+theme(legend.position=c(.15,.85))
+g<-g+labs(x="Dose (mg/day)", y="Average Teeth length")
+g<-g+ggtitle(label="Higher supplement dose can be related to higher tooth growth") 
+print(g)
+```
+
+**Findings - Higher average teeth lenght is observed for higher doses.**
+
+* Step 3: Perform t-tests to validate the hypothesis that higher doses is related 
+with tooth growth
+     + Conduct T-test between dose level 2 and 0.5
+     
+          + H0-Dose levels is not related with tooth growth
+          + H1- 2 Mg/day is related with higher tooth growth than 1 mg/day dose
+          + H2- 1 Mg/day is related with higher tooth growth than 1 mg/day dose
+     
+          *The experiment was run on 60 pigs with different dose levels and supplements.*
+          *Same pig was not administered with different dose levels for this expericemnt*
+          *So, its not a paired sample. However, the population variance of pig tooth*
+          *lenght can be assumed to be identical*
+
+
+```{r}
+tDataDose12<-tData[tData$dose!=1.0,]
+tres<-t.test(len~dose,data=tDataDose12,paired=F,var.equal=T)
+
+```
+
+**Findings - The null hypothesis (H0) can be rejected as p-value(`r tres$p.value`) is very small**
+
+* Step 4: Conduct a power t-test between 2 and 1 mg/day and 1 and .5 mg/day
+
+```{r, include=FALSE}
+meanD.5<-mean(tData[tData$dose==.5,]$len)
+meanD1<-mean(tData[tData$dose==1,]$len)
+meanD2<-mean(tData[tData$dose==2.0,]$len)
+
+sdD.5<-sd(tData[tData$dose==.5,]$len)
+sdD1<-sd(tData[tData$dose==1,]$len)
+sdD2<-sd(tData[tData$dose==2.0,]$len)
+
+```
+
+```{r}
+pt1<-power.t.test(n=20, delta = meanD2-meanD1, sd = sqrt((sdD2^2+sdD1^2)/2), 
+             sig.level = 0.05,
+             type = "two.sample",
+             alternative = "one.sided")
+
+pt2<-power.t.test(n=20, delta = meanD1-meanD.5, sd = sqrt((sdD.5^2+sdD1^2)/2), 
+             sig.level = 0.05,
+             type = "two.sample",
+             alternative = "one.sided")
+pt2
+```
+
+**Findings - The sample data provide enough (high power: `r round(pt1$power,4)`,`r round(pt2$power,4)`)**
+**evidence to support the hypothesises**
+**that higher doses of supplements can be related to higher tooth growth**
+
+* Step 5: Perform t-tests to validate the hypothesis that supplements are related to
+different tooth growth
+     + H0-With similar dose levels, different supplements are not related to different
+     tooth growth
+     + H1- Orange Juice (OJ) is a better supplement related with tooth growth
+          + Conduct T-test between supplements 
+
+```{r}
+tres<-t.test(len~supp,data=tData,paired=F,var.equal=T)
+```
+***Findings - The hypothesis (H0) that different supplements does not produce***
+***different result (difference in mean) - can not be rejected(p-value `r round(tres$p.value,2)`)***
+
+* Step 6:Conduct a power test to evaluate the number of samples required to evaluate
+which supplement is better
+     
+```{r, echo=FALSE}
+meanOJ<-mean(tData[tData$supp=="Orange Juice",]$len)
+meanVC<-mean(tData[tData$supp=="Ascrobic Acid (Vitamin C)",]$len)
+
+sdOJ<-sd(tData[tData$supp=="Orange Juice",]$len)
+sdVC<-sd(tData[tData$supp=="Ascrobic Acid (Vitamin C)",]$len)
+
+power.t.test(power = .90, delta = meanOJ-meanVC, sd = sqrt((sdOJ^2+sdVC^2)/2), 
+             sig.level = 0.05,
+             type = "two.sample",
+             alternative = "one.sided")
+```
+***At least 71 (meaning total 142) pigs has to administered with alternative supplements***
+***to conclude whether Orange Juice (Supp-OJ) is better supplement than Ascrobic Acid***
+***(Supp-VC) for tooth growth***
+
+### Conclusion
+supplements are related to higher tooth growth of pigs. However, the sample size
+is not large enough to conclude which supplement is more effective.
