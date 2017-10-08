@@ -29,7 +29,7 @@ print(g)
 
 
 ## Compare effectiveness of the suppliments
-### H0 - Suppliments doesn't an impact on teeth length
+### H0 - Both suppliments have similar effect on teeth growth 
 ### H1 - Suppliment OJ works better than suppliment VC
 
 meanOJ<-mean(tData[tData$supp=="OJ",]$len)
@@ -47,14 +47,31 @@ meanVC-meanOJ
 
 pt(1,58)
 
-t.test(tData[tData$supp=="OJ",]$len, y = tData[tData$supp=="VC",]$len,
-       alternative ="greater",
-       mu = meanOJ-meanVC, paired = FALSE, var.equal = T,
-       conf.level = 0.80)
+t.test(tData[tData$supp=="OJ",]$len-tData[tData$supp=="VC",]$len)
+
+## P-value =0.00255 H0..false
+
+t.test(len~supp,data=tData,paired=T,var.equal=T)
+
+## P-value =0.00255 H0..false when its a single sample
+## but, thats unlikely
+## The response is the length of odontoblasts (cells responsible for tooth growth) in 60 guinea pigs.
+## OJ - Orange Juice
+## VC - Vitamin C
+
+t.test(len~supp,data=tData,paired=F,var.equal=T)
+## P-value =0.06 H0..can't be rejected, when its two different sample
+
+## P-value =0.00255 H0..false
+
+# t.test(tData[tData$supp=="OJ",]$len, y = tData[tData$supp=="VC",]$len,
+#        alternative ="greater",
+#        mu = meanOJ-meanVC, paired = FALSE, var.equal = T,
+#        conf.level = 0.80)
 
 ## P-value =0.5 H0..false
 
-power.t.test(n = 30, delta = meanOJ-meanVC, sd = (sdOJ+sdVC)/2, 
+power.t.test(n = 30, delta = meanOJ-meanVC, sd = sqrt((sdOJ^2+sdVC^2)/2), 
              sig.level = 0.05,
              type = "two.sample",
              alternative = "one.sided")
@@ -62,12 +79,12 @@ power.t.test(n = 30, delta = meanOJ-meanVC, sd = (sdOJ+sdVC)/2,
 
 ## Power=0.60 Not enough for H1
 
-power.t.test(power = .80, delta = meanOJ-meanVC, sd = (sdOJ+sdVC)/2, 
+power.t.test(power = .90, delta = meanOJ-meanVC, sd = sqrt((sdOJ^2+sdVC^2)/2), 
              sig.level = 0.05,
              type = "two.sample",
              alternative = "one.sided")
 
-## For Power=0.80, n should be more than 51
+## For Power=0.90, n should be more than 71
 
 power.t.test()
 
