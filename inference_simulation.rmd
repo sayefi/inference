@@ -51,8 +51,6 @@ abline(v=(1/lambda)^2,lty=5,col="red")
 **Findings - After 1000 simulation, average of sample means are very close to ** 
 **Theritical mean. The sample variance is also very close to theoritical** 
 **population variance.**
-*however, this is based on small sample size and number of simulations.*
-*Also, the result is highly dependent on random functions available in R / computer*
 
 * Step 4: Compare the distribution of sample means with theoritical normal distribution curve
      + Calculate density of sample means
@@ -76,8 +74,7 @@ legend("topright", c("Dist. of Sample means","Normal Distribution"),
 ```
 
 **Findings - The Distribution of sample means are comparable to normal**
-**Distribution curve. However, sample means are more concentrated at the center**
-**(at least visually).**
+**Distribution curve. However, sample means are more concentrated at the center.**
 
 * Step 5: Revalidate findings through central limits
      + Calculate number of sample means within 1,2,3 standard error
