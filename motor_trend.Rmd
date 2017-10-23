@@ -1,0 +1,111 @@
+---
+title: "Is an automatic or manual transmission better for MPG"
+author: "Sayef Ishauqe"
+date: "October 21, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Executive Summary
+
+This paper looks into the R standard data `mtcars' to answer the question 
+**Is an automatic or manual transmission better for MPG?** and if so, 
+**what is difference in MPG for automatic vs manual transmission**
+
+### Method
+
+The analysis concentrates on identifying the best possible multi-variable regression 
+model to calcualte mpg and then interpret the infulence onf transmission being
+manual or automatic in the model.
+
+**Analyze the correlation of variables**
+
+* A ggpairs chart has been generated (***Figure 1***) to see the correlation of 
+variables with mpg.
+     - `mpg` has high correlation with weight (`wt`), cylinders (`cyl`) and displacement (`disp`)
+     - `cyl` and `disp` has high correlation within them. Considering the audience of the magazine `cyl` could be a simiplar predictor to communicate
+     - Trasmission, automated or manual (`am`) seems doesn't have high coorelation with `mpg`. 
+     - So, developing a multi-variable regression model with minimum number of variable is the best way to move. Once, the model is achieved transmission variable can be introduced to see the impact (for inference / hypothesis).
+
+**Construct and compare models**
+
+* Fit a linear regression model combination of variables as identified above
+     - Test the model with log of wight as well to see it is a better fit. This 
+     is because it is not logical to calculate mpg for a car with 0 wight.
+     
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+fit1<-lm(mpg~wt,data=mtcars)
+fit2<-lm(mpg~wt+factor(am),data=mtcars)
+fit3<-lm(mpg~wt+factor(cyl),data=mtcars)
+fit4<-lm(mpg~wt+factor(am)+factor(cyl),data=mtcars)
+fit5<-lm(mpg~I(log(wt))+factor(am)+factor(cyl),data=mtcars)
+anova(fit1,fit2,fit3,fit4,fit5)
+```
+
+**The model**
+
+**mpg =   37.02 -12.33 x log(wt) 
+     - [0.7 for manual transmission] 
+     - [3.03 for 6 cyl or, 4.91 8 cyl]**
+
+```{r, echo=FALSE}
+summary(fit5)$coef; confint(fit5)
+```
+
+* The model also indicates that automatics transmission vehicles (`am==0`) 
+produces slightly higher mpg (0.7) than that of manual transmission vehicle.
+However, Further looking into the confidence interval of the cofficients, the 
+95% interval of transimssion variable `am` included 0. So, the hypothesis that 
+this variable has no impact on milage can not be rejected.
+
+
+## Conclusion
+The model shows that millage is mostly correlated with weight and than number of 
+cylinders of a car. 
+
+```{r, echo=FALSE, fig.height=4, message=FALSE, warning=FALSE}
+library(ggplot2)
+g<-ggplot(data=mtcars,aes(y=mpg,x=log(wt),fill=factor(am)))
+g<-g+geom_point(col="red")
+# g<-g+facet_grid(cyl~.)
+g<-g+scale_fill_discrete(name="Transmission Type",labels=c("Automatic","Manual"))
+g<-g+geom_text(aes(label=cyl),nudge_y = 1)
+g<-g+ggtitle(label="Model showing correlation of mpg with log(wt), cyl & transmission type")
+g<-g+geom_smooth(method="lm")
+g
+```
+
+While in preliminary anaysis, it showed that manual transmission
+provides higher mpg (***Figure 2***), the model has produced high residuals. 
+A better fit model shows that transmission type doesn't have significant impact on 
+mpg. Analysis of residuals is shown in ***Figure 3***. This model is still not safe
+from high residuals which can be further analyzed to refine the multi-variable 
+regressional model.
+
+
+## Appendix
+
+```{r, echo=FALSE, fig.height=6, fig.width=7, message=FALSE, warning=FALSE}
+#install.packages("GGally")
+require(GGally)
+ggpairs(mtcars,lower=list(contenuous="smooth"))
+```
+***Figure 1: Pairs plot of all variables in mtcars***
+
+```{r, echo=FALSE}
+fit<-lm(mpg~factor(am),data=mtcars)
+
+summary(fit)
+
+```
+***Figure 2: correlation of transmission type with mpg***
+
+```{r, echo=FALSE}
+par(mfrow=c(2,2))
+plot(fit5)
+```
+***Figure 3: Residuals of the suggested model***
+
