@@ -18,7 +18,7 @@ This paper looks into the R standard data `mtcars' to answer the question
 ### Method
 
 The analysis concentrates on identifying the best possible multi-variable regression 
-model to calcualte mpg and then interpret the infulence onf transmission being
+model to calcualte mpg and then interpret the infulence of transmission being
 manual or automatic in the model.
 
 **Analyze the correlation of variables**
@@ -32,7 +32,7 @@ variables with mpg.
 
 **Construct and compare models**
 
-* Fit a linear regression model combination of variables as identified above
+* Fit a linear regression model with combination of variables as identified above
      - Test the model with log of wight as well to see it is a better fit. This 
      is because it is not logical to calculate mpg for a car with 0 wight.
      
@@ -55,7 +55,7 @@ anova(fit1,fit2,fit3,fit4,fit5)
 summary(fit5)$coef; confint(fit5)
 ```
 
-* The model also indicates that automatics transmission vehicles (`am==0`) 
+* The model also indicates that automatic transmission vehicles (`am==0`) 
 produces slightly higher mpg (0.7) than that of manual transmission vehicle.
 However, Further looking into the confidence interval of the cofficients, the 
 95% interval of transimssion variable `am` included 0. So, the hypothesis that 
@@ -81,7 +81,7 @@ g
 While in preliminary anaysis, it showed that manual transmission
 provides higher mpg (***Figure 2***), the model has produced high residuals. 
 A better fit model shows that transmission type doesn't have significant impact on 
-mpg. Analysis of residuals is shown in ***Figure 3***. This model is still not safe
+mpg. Analysis of residuals is shown in ***Figure 3***. The suggested model is still not safe
 from high residuals which can be further analyzed to refine the multi-variable 
 regressional model.
 
